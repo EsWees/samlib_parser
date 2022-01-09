@@ -1,0 +1,13 @@
+beautifulsoup4==4.10.0
+bs4==0.0.1
+charset-normalizer==2.0.6
+fake-useragent==0.1.11
+lxml==4.6.3
+parse==1.19.0
+requests==2.26.0
+requests-html==0.10.0
+soupsieve==2.2.1
+SQLAlchemy==1.4.25
+urllib3==1.26.7
+zipp==3.6.0
+argparse
