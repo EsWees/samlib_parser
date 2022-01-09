@@ -127,5 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# TMP db and all parse results
 database_samlib.sqlite
-output.html
+*.html

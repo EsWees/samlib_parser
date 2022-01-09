@@ -133,7 +133,7 @@ def getAllPages(url):
 
 def writeIntoHTML(url):
     data = session.query(Comments).order_by(Comments.date).all()
-    with open("output.html", "w+") as file:
+    with open(res.url.replace('/','_'), "w+") as file:
         file.write('''
 <!DOCTYPE html>
 <html>
@@ -158,7 +158,7 @@ def writeIntoHTML(url):
 
     for item in data:
         autor = session.query(Autors).filter_by(id=item.autor).first()
-        with open("output.html", "a+") as file:
+        with open(res.url.replace('/','_'), "a+") as file:
             file.write(f"""
             <article>
                 <div autor>
@@ -171,7 +171,7 @@ def writeIntoHTML(url):
             </article>
             """)
 
-    with open("output.html", "a+") as file:
+    with open(res.url.replace('/','_'), "a+") as file:
         file.write(f'''
     </body>
 </html>''')
