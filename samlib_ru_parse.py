@@ -122,18 +122,48 @@ def grabTheComments(url):
             session.add(comment)
 
 
-def getAllPages(url):
+def getLinks(url):
+    #all related Links
     r = requests.get(url, headers=headers)
     urls = []
     for link in r.html.links:
         if link.startswith(urlparse(url).path) and "OPERATION" not in link and "ORDER" not in link:
-            urls.append(f"{urlparse(url).scheme}://{urlparse(url).netloc}/{link}")
+            urls.append(f"{urlparse(url).scheme}://{urlparse(url).netloc}{link}")
     return urls
+
+def getAllPages(url):
+    # main pages
+    pages = [f"{url}?PAGE=1"]
+    for i in getLinks(url):
+        if not re.findall(r".*\?PAGE=([0-9]+)$", i, re.MULTILINE):
+            continue
+        else:
+            page = re.findall(r".*\?PAGE=([0-9]+)$", i, re.MULTILINE)[0]
+        pages.append(f"{url}?PAGE={page}")
+
+    return pages
+
+def getAllArchivePages(url):
+    # Get max archive page number
+    archiveCounter = 0
+    for i in getLinks(url):
+        if not re.findall(r".*\.([0-9]+)$", i, re.MULTILINE):
+            continue
+        res = int(''.join(re.findall(r".*\.([0-9]+)$", i, re.MULTILINE)))
+        if res > archiveCounter:
+            archiveCounter = res
+    
+    # pass through archives
+    masslink = []
+    for i in range(1,archiveCounter + 1):
+        masslink += getAllPages(f'{url}.{i}')
+    
+    return masslink
 
 
 def writeIntoHTML(url):
     data = session.query(Comments).order_by(Comments.date).all()
-    with open(res.url.replace('/','_'), "w+") as file:
+    with open(f"{res.url.replace('/','_')}.html", "a+") as file:
         file.write('''
 <!DOCTYPE html>
 <html>
@@ -158,7 +188,7 @@ def writeIntoHTML(url):
 
     for item in data:
         autor = session.query(Autors).filter_by(id=item.autor).first()
-        with open(res.url.replace('/','_'), "a+") as file:
+        with open(f"{res.url.replace('/','_')}.html", "a+") as file:
             file.write(f"""
             <article>
                 <div autor>
@@ -171,14 +201,14 @@ def writeIntoHTML(url):
             </article>
             """)
 
-    with open(res.url.replace('/','_'), "a+") as file:
+    with open(f"{res.url.replace('/','_')}.html", "a+") as file:
         file.write(f'''
     </body>
 </html>''')
 
 
 def main():
-    for i in getAllPages(res.url):
+    for i in getAllPages(res.url) + getAllArchivePages(res.url):
         grabTheComments(i)
         print(".", end="", flush=True)
         sleep(1)
